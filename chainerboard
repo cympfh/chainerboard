@@ -1,0 +1,41 @@
+#!/usr/bin/env ruby
+
+require 'optparse'
+require 'webrick'
+require './lib/plot.rb'
+
+def usage
+    puts "see --help"
+    exit 0
+end
+
+opts = ARGV.getopts('', 'log:', 'port:')
+port = opts['port'] || 20080
+log = opts['log']
+
+if !log
+    usage
+end
+
+srv = WEBrick::HTTPServer.new({ :DocumentRoot => './',
+                                :BindAddress => '0.0.0.0',
+                                :Port => port})
+srv.mount('/', WEBrick::HTTPServlet::FileHandler, 'templates/index.html')
+srv.mount_proc('/log/epoch/main') { |req, res|
+    png = plot(log, 'epoch', 'main')
+    res.body = File.open(png, 'rb').read()
+}
+srv.mount_proc('/log/epoch/validation') { |req, res|
+    png = plot(log, 'epoch', 'validation')
+    res.body = File.open(png, 'rb').read()
+}
+srv.mount_proc('/log/iteration/main') { |req, res|
+    png = plot(log, 'iteration', 'main')
+    res.body = File.open(png, 'rb').read()
+}
+srv.mount_proc('/log/iteration/validation') { |req, res|
+    png = plot(log, 'iteration', 'validation')
+    res.body = File.open(png, 'rb').read()
+}
+trap("INT"){ srv.shutdown }
+srv.start

@@ -1,0 +1,5 @@
+# ChainerBoard
+
+```bash
+chainerboard --logdir
+```
