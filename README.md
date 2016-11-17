@@ -1,8 +1,16 @@
-# ChainerBoard
+# Chainerboard
+
+## Usage
 
 ```bash
-chainerboard --log /path/to/chainer/result/log
+chainerboard --log /path/to/chainer/result/log [ --port 20080 ]
 ```
+
+and access `localhost:20080/`.
+
+`Chainerboard` generates like this:
+
+![](resources/readme.png)
 
 ## LogReport format
 
@@ -20,3 +28,4 @@ chainerboard --log /path/to/chainer/result/log
   },
   {
 ```
+
