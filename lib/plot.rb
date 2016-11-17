@@ -102,7 +102,6 @@ end
 
 def plot(path, axis_type, data_type)
 
-    p path
     dat = JSON.load(open(path).read)
     keys = Set.new
     values = []
