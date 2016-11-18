@@ -86,6 +86,7 @@ set title '#{title} (#{png})'
 set terminal pngcairo size 800,500
 set output '#{png}'
 set grid
+set key right outside
 set xlabel '#{axis}'
 plot '#{dat.path}' u 1:2 smooth unique title '#{keys[0]}'"""
 
