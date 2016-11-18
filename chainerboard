@@ -2,7 +2,7 @@
 
 require 'optparse'
 require 'webrick'
-require './lib/plot.rb'
+require "#{__dir__}/lib/plot.rb"
 require 'erb'
 
 def usage
@@ -19,12 +19,10 @@ log = opts['log']
 usage if !log
 
 # server
-srv = WEBrick::HTTPServer.new({ :DocumentRoot => './',
-                                :BindAddress => '0.0.0.0',
-                                :Port => port})
+srv = WEBrick::HTTPServer.new({ :BindAddress => '0.0.0.0', :Port => port})
 
 srv.mount_proc('/') {|req, res|
-    erb = ERB.new File.open('templates/index.html').read
+    erb = ERB.new File.open("#{__dir__}/templates/index.html").read
     res.body = erb.result(binding)
 }
 

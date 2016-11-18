@@ -53,7 +53,7 @@ end
 
 def gnuplot(title, keys, values)
 
-    png = "resources/#{dummy_name}.png"
+    png = "/tmp/#{dummy_name}.png"
     axis = if values[0]['epoch'] then 'epoch' else 'iteration' end
 
     values = values.select {|item|
