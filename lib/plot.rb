@@ -88,6 +88,8 @@ set output '#{png}'
 set grid
 set key right outside
 set xlabel '#{axis}'
+set xrange [0:]
+set yrange [0:]
 plot '#{dat.path}' u 1:2 smooth unique title '#{keys[0]}'"""
 
         for i in 1...keys.size
