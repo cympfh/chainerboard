@@ -51,23 +51,8 @@ def smooth(keys, values, fsize)
 end
 
 
-def gnuplot(title, keys, values)
-
-    png = "/tmp/#{dummy_name}.png"
-    axis = if values[0]['epoch'] then 'epoch' else 'iteration' end
-
-    values = values.select {|item|
-        ok = true
-        for k in keys
-            ok = false if item[k] == nil
-        end
-        ok
-    }
-
-    fsize = [3, (values.size / 100).to_i].max
-    values = smooth(keys, values, fsize)
-
-    dat = Tempfile.open('dat') {|fp|
+def write(axis, keys, values)
+    Tempfile.open('dat') {|fp|
         body = values.map {|item|
             column = [item[axis]]
             for k in keys
@@ -78,11 +63,28 @@ def gnuplot(title, keys, values)
         fp.puts body
         fp
     }
+end
+
+
+def gnuplot(axis, keys, values)
+
+    png = "/tmp/#{dummy_name}.png"
+
+    for m in [:main, :validation]
+        values[m] = values[m].select{|item|
+            keys[m].all? {|k| item[k]}
+        }
+        fsize = [3, (values[m].size / 100).to_i].max
+        values[m] = smooth(keys[m], values[m], fsize)
+    end
+
+    dat_m = write(axis, keys[:main], values[:main])
+    dat_v = write(axis, keys[:validation], values[:validation])
 
     gp = Tempfile.open('gp') {|fp|
 
-        fp.print """
-set title '#{title} (#{png})'
+        fp.puts """
+set title '(#{png})'
 set terminal pngcairo size 800,500
 set output '#{png}'
 set grid
@@ -90,11 +92,23 @@ set key right outside
 set xlabel '#{axis}'
 set xrange [0:]
 set yrange [0:]
-plot '#{dat.path}' u 1:2 smooth unique title '#{keys[0]}'"""
+"""
 
-        for i in 1...keys.size
-            fp.print ", '' u 1:#{i+2} smooth unique title '#{keys[i]}'"
+        colors = ["#ff0000", "#00ff00", "#0000ff", "#dddd00", "#00dddd", "#dd00dd"]
+        for _ in 0..1000
+            colors << "#aaaaaa"
         end
+
+        plots = []
+        for i in 0...keys[:main].size
+            plots << "'#{dat_m.path}' u 1:#{i+2} dt '_-' lc rgb '#{colors[i]}' lw 1 smooth unique title 'train/#{keys[:main][i]}'"
+        end
+        for i in 0...keys[:validation].size
+            plots << "'#{dat_v.path}' u 1:#{i+2} lc rgb '#{colors[i]}' lw 1 smooth unique title 'test/#{keys[:validation][i]}'"
+        end
+        fp.print "plot "
+        fp.puts plots.join(", ")
+
         fp
     }
 
@@ -103,37 +117,41 @@ plot '#{dat.path}' u 1:2 smooth unique title '#{keys[0]}'"""
 end
 
 
-def plot(path, axis_type, data_type)
+def plot(path, axis)
 
     dat = JSON.load(open(path).read)
-    keys = Set.new
-    values = []
+    keys = {:main => Set.new, :validation => Set.new}
+    values = {:main => [], :validation => []}
 
     for d in dat
 
-        item = {}
-        item[axis_type] = d[axis_type]
+        item_m = {}
+        item_v = {}
+        item_m[axis] = d[axis]
+        item_v[axis] = d[axis]
 
         for key, val in d
             next if key == 'epoch'
             next if key == 'iteration'
 
-            if data_type == 'main' and key.start_with? 'main/'
+            if key.start_with? 'main/'
                 k = key.sub(/^main./, '')
-                keys << k
-                item[k] = val
+                keys[:main] << k
+                item_m[k] = val
             end
 
-            if data_type == 'validation' and key.start_with? 'validation/main/'
+            if key.start_with? 'validation/main/'
                 k = key.sub(/^validation.main./, '')
-                keys << k
-                item[k] = val
+                keys[:validation] << k
+                item_v[k] = val
             end
         end
-        values << item
+        values[:main] << item_m
+        values[:validation] << item_v
     end
 
-    keys = keys.to_a.sort
-    png = gnuplot data_type, keys, values
+    keys[:main] = keys[:main].to_a.sort
+    keys[:validation] = keys[:validation].to_a.sort
+    png = gnuplot axis, keys, values
     return png
 end

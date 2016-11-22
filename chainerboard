@@ -26,20 +26,12 @@ srv.mount_proc('/') {|req, res|
     res.body = erb.result(binding)
 }
 
-srv.mount_proc('/log/epoch/main') {|req, res|
-    png = plot(log, 'epoch', 'main')
+srv.mount_proc('/log/epoch') {|req, res|
+    png = plot(log, 'epoch')
     res.body = File.open(png, 'rb').read()
 }
-srv.mount_proc('/log/epoch/validation') {|req, res|
-    png = plot(log, 'epoch', 'validation')
-    res.body = File.open(png, 'rb').read()
-}
-srv.mount_proc('/log/iteration/main') {|req, res|
-    png = plot(log, 'iteration', 'main')
-    res.body = File.open(png, 'rb').read()
-}
-srv.mount_proc('/log/iteration/validation') {|req, res|
-    png = plot(log, 'iteration', 'validation')
+srv.mount_proc('/log/iteration') {|req, res|
+    png = plot(log, 'iteration')
     res.body = File.open(png, 'rb').read()
 }
 trap("INT"){ srv.shutdown }

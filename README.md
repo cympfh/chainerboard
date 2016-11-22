@@ -1,5 +1,12 @@
 # Chainerboard
 
+## Requirements
+
+- Ruby
+    - only with standard library
+- gnuplot _5.0_
+    - using terminal _pngcairo_
+
 ## Usage
 
 ```bash
