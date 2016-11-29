@@ -46,4 +46,4 @@ xrange and yrange can be specified
 by appending `xrange` and `yrange` query.
 E.g. `?xrange=10:20&yrange=0.8:1.0`.
 
-![](resources/readme.png)
+![](resources/readme.2.png)
