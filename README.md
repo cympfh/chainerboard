@@ -36,3 +36,14 @@ and access `localhost:20080/`.
   {
 ```
 
+## LogPlot
+
+A HTML page `localhost:20080/` shows 2 plots,
+`localhost:20080/log/epoch` and
+`localhost:20080/log/iteration`.
+
+xrange and yrange can be specified
+by appending `xrange` and `yrange` query.
+E.g. `?xrange=10:20&yrange=0.8:1.0`.
+
+![](resources/readme.png)

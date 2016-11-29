@@ -66,7 +66,7 @@ def write(axis, keys, values)
 end
 
 
-def gnuplot(axis, keys, values)
+def gnuplot(axis, keys, values, xrange, yrange)
 
     png = "/tmp/#{dummy_name}.png"
 
@@ -90,9 +90,17 @@ set output '#{png}'
 set grid
 set key right outside
 set xlabel '#{axis}'
-set xrange [0:]
-set yrange [0:]
 """
+
+        if xrange
+            fp.puts "set xrange[#{xrange}]"
+        else
+            fp.puts "set xrange[0:]"
+        end
+
+        if yrange
+            fp.puts "set yrange[#{yrange}]"
+        end
 
         colors = ["#ff0000", "#00ff00", "#0000ff", "#dddd00", "#00dddd", "#dd00dd"]
         for _ in 0..1000
@@ -117,7 +125,7 @@ set yrange [0:]
 end
 
 
-def plot(path, axis)
+def plot(path, axis, xrange, yrange)
 
     dat = JSON.load(open(path).read)
     keys = {:main => Set.new, :validation => Set.new}
@@ -152,6 +160,6 @@ def plot(path, axis)
 
     keys[:main] = keys[:main].to_a.sort
     keys[:validation] = keys[:validation].to_a.sort
-    png = gnuplot axis, keys, values
+    png = gnuplot axis, keys, values, xrange, yrange
     return png
 end
