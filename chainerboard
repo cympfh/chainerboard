@@ -29,7 +29,6 @@ srv.mount_proc('/') {|req, res|
 srv.mount_proc('/log/epoch') {|req, res|
     xrange = req.query['xrange']
     yrange = req.query['yrange']
-    p [xrange, yrange]
     png = plot(log, 'epoch', xrange, yrange)
     res.body = File.open(png, 'rb').read()
 }
