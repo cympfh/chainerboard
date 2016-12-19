@@ -2,6 +2,7 @@ require 'json'
 require 'set'
 require 'tempfile'
 require 'time'
+require "#{__dir__}/color.rb"
 
 def dummy_name
   "#{Time.now.to_i}.#{rand(1000)}"
@@ -73,16 +74,17 @@ EOS
 end
 
 def gnuplot_body(keys, path_m, path_v)
-  colors = ['#ff0000', '#00ff00', '#0000ff', '#dddd00', '#00dddd', '#dd00dd']
-  1000.times { colors << '#aaaaaa' }
-
   plots = []
   keys[:main].each_with_index do |key, i|
-    plots << "'#{path_m}' u 1:#{i + 2} dt '_-' lc rgb '#{colors[i]}' lw 1 smooth unique title 'train/#{key}'"
+    cl = Color.get key
+    puts "main/#{key} #{cl}"
+    plots << "'#{path_m}' u 1:#{i + 2} dt '_-' lc rgb '#{cl}' lw 1 smooth unique title 'train/#{key}'"
   end
 
   keys[:validation].each_with_index do |key, i|
-    plots << "'#{path_v}' u 1:#{i + 2} lc rgb '#{colors[i]}' lw 1 smooth unique title 'test/#{key}'"
+    cl = Color.get key
+    puts "val/#{key} #{cl}"
+    plots << "'#{path_v}' u 1:#{i + 2} lc rgb '#{cl}' lw 1 smooth unique title 'test/#{key}'"
   end
 
   "plot #{plots.join(', ')}"
