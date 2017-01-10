@@ -29,14 +29,20 @@ end
 srv.mount_proc('/log/epoch') do |req, res|
   xrange = req.query['xrange']
   yrange = req.query['yrange']
-  png = plot(log, 'epoch', xrange, yrange)
+  xtics = req.query['xtics']
+  ytics = req.query['ytics']
+  opt = { xrange: xrange, yrange: yrange, xtics: xtics, ytics: ytics }
+  png = plot(log, 'epoch', opt)
   res.body = File.open(png, 'rb').read
 end
 
 srv.mount_proc('/log/iteration') do |req, res|
   xrange = req.query['xrange']
   yrange = req.query['yrange']
-  png = plot(log, 'iteration', xrange, yrange)
+  xtics = req.query['xtics']
+  ytics = req.query['ytics']
+  opt = { xrange: xrange, yrange: yrange, xtics: xtics, ytics: ytics }
+  png = plot(log, 'iteration', opt)
   res.body = File.open(png, 'rb').read
 end
 

@@ -57,8 +57,7 @@ def write(axis, keys, values)
   end
 end
 
-def gnuplot_template(png, axis, xrange, yrange)
-  xrange = '0:' unless xrange
+def gnuplot_template(png, axis, opt)
   body = <<EOS
 set title '(#{png})'
 set terminal pngcairo size 800,500
@@ -67,8 +66,11 @@ set grid
 set key right outside
 set xlabel '#{axis}'
 EOS
-  body += "set xrange[#{xrange}]\n"
-  body += "set yrange[#{yrange}]\n" if yrange
+
+  body += "set xrange[#{opt[:xrange] || '0:'}]\n"
+  body += "set yrange[#{opt[:yrange]}]\n" if opt[:yrange]
+  body += "set xtics #{opt[:xtics]}\n" if opt[:xtics]
+  body += "set ytics #{opt[:ytics]}\n" if opt[:ytics]
 
   body
 end
@@ -90,7 +92,7 @@ def gnuplot_body(keys, path_m, path_v)
   "plot #{plots.join(', ')}"
 end
 
-def gnuplot(axis, keys, values, xrange, yrange)
+def gnuplot(axis, keys, values, opt)
   png = "/tmp/#{dummy_name}.png"
 
   [:main, :validation].each do |m|
@@ -103,7 +105,7 @@ def gnuplot(axis, keys, values, xrange, yrange)
   dat_v = write(axis, keys[:validation], values[:validation])
 
   gp = Tempfile.open('gp') do |fp|
-    fp.puts gnuplot_template(png, axis, xrange, yrange)
+    fp.puts gnuplot_template(png, axis, opt)
     fp.puts gnuplot_body(keys, dat_m.path, dat_v.path)
     fp
   end
@@ -112,7 +114,7 @@ def gnuplot(axis, keys, values, xrange, yrange)
   png
 end
 
-def plot(path, axis, xrange, yrange)
+def plot(path, axis, opt)
   dat = JSON.load open(path).read
   keys = { main: Set.new, validation: Set.new }
   values = { main: [], validation: [] }
@@ -145,6 +147,6 @@ def plot(path, axis, xrange, yrange)
 
   keys[:main] = keys[:main].to_a.sort
   keys[:validation] = keys[:validation].to_a.sort
-  png = gnuplot axis, keys, values, xrange, yrange
+  png = gnuplot axis, keys, values, opt
   png
 end
