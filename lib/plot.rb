@@ -95,7 +95,7 @@ def gnuplot(axis, keys, values, xrange, yrange)
 
   [:main, :validation].each do |m|
     values[m] = values[m].select { |item| keys[m].all? { |k| item[k] } }
-    fsize = [3, (values[m].size / 100).to_i].max
+    fsize = [3, (values[m].size / 50).to_i].max
     values[m] = smooth(keys[m], values[m], fsize)
   end
 
@@ -113,7 +113,7 @@ def gnuplot(axis, keys, values, xrange, yrange)
 end
 
 def plot(path, axis, xrange, yrange)
-  dat = JSON.parse open(path).read
+  dat = JSON.load open(path).read
   keys = { main: Set.new, validation: Set.new }
   values = { main: [], validation: [] }
 
